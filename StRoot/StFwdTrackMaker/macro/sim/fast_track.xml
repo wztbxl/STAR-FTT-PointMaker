@@ -2,10 +2,12 @@
 <config>
     <Output url="fast_track.root" />
     <Source ftt="GEANT" fttFilter="false" />
+
+    <SiRasterizer r="3.0" phi="0.04" />
     
     <!-- Missing <TrackFinder> means use MC Track finding -->
     
-	<TrackFitter refitSi="true" mcSeed="true" refitGBL="false" MaterialEffects="false" >
+	<TrackFitter refitSi="false" mcSeed="true" refitGBL="false" MaterialEffects="false" >
         <MaterialEffects DebugLvl="0" >
             <EnergyLossBetheBloch>false</EnergyLossBetheBloch>
             <NoiseBetheBloch>false</NoiseBetheBloch>

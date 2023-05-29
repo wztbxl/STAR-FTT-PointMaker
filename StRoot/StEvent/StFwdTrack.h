@@ -26,7 +26,7 @@
 class StFcsCluster;
 
 
-struct StFwdTrackProjection {
+struct StFwdTrackProjection : public StObject {
     StFwdTrackProjection() {}
     StFwdTrackProjection ( const StFwdTrackProjection & other) {
         mXYZ = other.mXYZ;
@@ -70,24 +70,32 @@ struct StFwdTrackProjection {
     float dz(){
         return sqrt( mCov[8] );
     }
+    ClassDef(StFwdTrackProjection,1)
 };
 
-struct StFwdTrackSeedPoint {
+struct StFwdTrackSeedPoint : public StObject {
     StFwdTrackSeedPoint() {}
     StFwdTrackSeedPoint(    StThreeVectorD xyz, 
                             short sec, 
                             unsigned short trackId, 
                             float cov[9] ){
+        // mX = xyz.x();
+        // mY = xyz.y();
+        // mZ = xyz.z();
         mXYZ = xyz;
         mSector = sec;
         mTrackId = trackId;
         memcpy( mCov, cov, sizeof( mCov ));
     }
     
+
+    // StThreeVectorD getXYZ() { return StThreeVectorD( mX, mY, mZ ); };
+    // double mX, mY, mZ;
     StThreeVectorD mXYZ;
     unsigned short mTrackId;
     short mSector;
     float mCov[9];
+    ClassDef(StFwdTrackSeedPoint,1)
 };
 
 class StFwdTrack : public StObject {
@@ -95,9 +103,9 @@ class StFwdTrack : public StObject {
 public:
     StFwdTrack(  );
 
-    vector<StFwdTrackProjection> mProjections;
-    vector<StFwdTrackSeedPoint> mFTTPoints;
-    vector<StFwdTrackSeedPoint> mFSTPoints;
+    vector<StFwdTrackProjection> mProjections; 
+    vector<StFwdTrackSeedPoint> mFTTPoints;    
+    vector<StFwdTrackSeedPoint> mFSTPoints;    
 
     StFwdTrackProjection getProjectionFor(  int detectorId, 
                             size_t index = 0 );
@@ -163,11 +171,11 @@ protected:
     float mNDF;
     float mPval;
     short mCharge;
-    StThreeVectorD mPrimaryMomentum;
+    StThreeVectorD mPrimaryMomentum; 
     
 
-    StPtrVecFcsCluster mEcalClusters;
-    StPtrVecFcsCluster mHcalClusters;
+    StPtrVecFcsCluster mEcalClusters; 
+    StPtrVecFcsCluster mHcalClusters; 
     
     ClassDef(StFwdTrack,1)
 

@@ -75,6 +75,7 @@ struct FwdTreeData {
     int mcN;
     vector<float> mcPt, mcEta, mcPhi;
     vector<int> mcVertexId, mcCharge;
+    vector<int> mcNumFtt, mcNumFst;
 
     // MC Level vertex info
     // maybe use also for TPC vertex if available in data
@@ -111,6 +112,8 @@ class StFwdTrackMaker : public StMaker {
     int Finish();
     int Make();
     void Clear(const Option_t *opts = "");
+
+    void test();
 
     enum { kInnerGeometry,
            kOuterGeometry };
@@ -151,6 +154,7 @@ class StFwdTrackMaker : public StMaker {
     vector<TVector3> mFcsClusters;
     vector<float> mFcsClusterEnergy;
     vector<TVector3> mFcsPreHits;
+    size_t mEventNum = 0;
 
     std::vector< genfit::GFRaveVertex * > mRaveVertices;
 
