@@ -232,11 +232,11 @@ class ForwardTrackMaker {
     }
 
     /** Loads Criteria from XML configuration.
-   *
-   * Utility function for loading criteria from XML config.
-   *
-   * @return vector of ICriterion pointers
-   */
+    *
+    * Utility function for loading criteria from XML config.
+    *
+    * @return vector of ICriterion pointers
+    */
     std::vector<KiTrack::ICriterion *> loadCriteria(string path) {
 
         std::vector<KiTrack::ICriterion *> crits;
@@ -507,7 +507,24 @@ class ForwardTrackMaker {
         // Load and sort the hits
         /*************************************************************/
         long long itStart = FwdTrackerUtils::nowNanoSecond();
-        FwdDataSource::HitMap_t &hitmap = mDataSource->getFttHits();;
+        // Get FTT Hits for track finding
+        FwdDataSource::HitMap_t &fttHitmap = mDataSource->getFttHits();
+        FwdDataSource::HitMap_t &fstHitmap = mDataSource->getFstHits();
+
+        string hitmapSource = mConfig.get<string>("TrackFinder:source", "ftt");
+        bool useFttAsSource = !(hitmapSource == "fst");
+
+        if ( useFttAsSource == false ){
+            for (auto hp : fstHitmap){
+                LOG_INFO << "HITMAP [" << hp.first << ", { ";
+                for ( auto h: hp.second ){
+                    LOG_INFO << "z=" << h->getZ() << " ";
+                }
+                LOG_INFO << " }" << endm;
+            }
+        }
+
+
         FwdDataSource::McTrackMap_t &mcTrackMap = mDataSource->getMcTracks();
 
         fillHistograms();
@@ -525,7 +542,7 @@ class ForwardTrackMaker {
         // MC Track Finding
         if (mcTrackFinding) {
             LOG_DEBUG << "MC TRACK FINDING " << endm;
-            doMcTrackFinding(mcTrackMap);
+            doMcTrackFinding(mcTrackMap, useFttAsSource);
 
             /***********************************************/
             // REFIT with Silicon hits
@@ -555,7 +572,11 @@ class ForwardTrackMaker {
         // plus initial fit
         size_t nIterations = mConfig.get<size_t>("TrackFinder:nIterations", 0);
         for (size_t iIteration = 0; iIteration < nIterations; iIteration++) {
-            doTrackIteration(iIteration, hitmap);
+
+            if ( hitmapSource == "fst" )
+                doTrackIteration(iIteration, fstHitmap);
+            else
+                doTrackIteration(iIteration, fttHitmap);
         }
         /***********************************************/
 
@@ -584,9 +605,7 @@ class ForwardTrackMaker {
         double qual = 0;
         idt = MCTruthUtils::dominantContribution(track, qual);
         
-        
-
-
+    
         TVector3 mcSeedMom;
 
         auto mctm = mDataSource->getMcTracks();
@@ -700,10 +719,10 @@ class ForwardTrackMaker {
             this->mHist["FitDuration"]->Fill(duration);
         }
         // TODO: After tracking vertex finding...
-
+        LOG_DEBUG << "doTrackFitting Complete" << endm;
     }
 
-    void doMcTrackFinding(FwdDataSource::McTrackMap_t &mcTrackMap) {
+    void doMcTrackFinding(FwdDataSource::McTrackMap_t &mcTrackMap, bool useFTT = true) {
 
         mQualityPlotter->startIteration();
 
@@ -711,18 +730,31 @@ class ForwardTrackMaker {
         for (auto kv : mcTrackMap) {
             
             auto mc_track = kv.second;
-            if (mc_track->mHits.size() < 4){ // require min 4 hits on track
+
+
+            if (useFTT && mc_track->mHits.size() < 4){ // require min 4 FTT hits on track
+                continue;
+            }
+
+            if (!useFTT && mc_track->mFstHits.size() < 3 ) { // require min 3 FST hits on track
                 continue;
             }
 
             std::set<size_t> uvid;
             Seed_t track;
 
-            for (auto h : mc_track->mHits) {
-                track.push_back(h);
-                uvid.insert(static_cast<FwdHit *>(h)->_vid);
+            if ( useFTT ){ // FTT (DEFAULT)
+                for (auto h : mc_track->mHits) {
+                    track.push_back(h);
+                    uvid.insert(static_cast<FwdHit *>(h)->_vid);
+                }
+            } else { // FST 
+                for (auto h : mc_track->mFstHits) {
+                    track.push_back(h);
+                    uvid.insert(static_cast<FwdHit *>(h)->_vid);
+                }
             }
-
+            
             if (uvid.size() == track.size()) { // only add tracks that have one hit per volume
                 mRecoTracks.push_back(track);
                 int idt = 0;
@@ -823,6 +855,10 @@ class ForwardTrackMaker {
 
         if (automaton.getNumberOfConnections() > 900 ){
             LOG_ERROR << "Got too many connections, bailing out of tracking" << endm;
+            // std::string subsetPath = "TrackFinder.Iteration[" + std::to_string(iIteration) + "].SubsetNN";
+            // size_t minHitsOnTrack = mConfig.get<size_t>(subsetPath + ":min-hits-on-track", FwdSystem::sNFttLayers);
+            acceptedTracks = automaton.getTracks(2);
+            LOG_INFO << "Got " << acceptedTracks.size() << endm;
             return acceptedTracks;
         }
 
@@ -857,6 +893,7 @@ class ForwardTrackMaker {
         if (doAutomation) {
             automaton.doAutomaton();
         } else {
+            LOG_INFO << "Skipping Automation Step" << endm;
             //Not running Automation Step
         }
 
@@ -876,6 +913,7 @@ class ForwardTrackMaker {
             acceptedTracks = automaton.getTracks(minHitsOnTrack);
             return acceptedTracks;
         }
+        
         itStart = FwdTrackerUtils::nowNanoSecond();
 
         LOG_DEBUG << TString::Format( "nSegments=%lu", automaton.getSegments().size() ).Data() << endm;
@@ -945,7 +983,8 @@ class ForwardTrackMaker {
         // check to see if we have hits!
         size_t nHitsThisIteration = nHitsInHitMap(hitmap);
 
-        if (nHitsThisIteration < 4) {
+        const int minHitsToConsider = 3;
+        if (nHitsThisIteration < minHitsToConsider) {
             // No hits left in the hitmap! Skipping this iteration
             return;
         }
@@ -988,7 +1027,7 @@ class ForwardTrackMaker {
                 size_t nHitsThisSlice = 0;
                 if ( phi_slice_count > 1 ){
                     nHitsThisSlice = sliceHitMapInPhi( hitmap, slicedHitMap, phi_min, phi_max );
-                    if ( nHitsThisSlice < 4 ) {
+                    if ( nHitsThisSlice < minHitsToConsider ) {
                         continue;
                     }
                 } else { // no need to slice
@@ -1003,7 +1042,7 @@ class ForwardTrackMaker {
                 mRecoTracksThisItertion.insert( mRecoTracksThisItertion.end(), acceptedTracks.begin(), acceptedTracks.end() );
             } //loop on phi slices
         }// if loop on phi slices
-        LOG_INFO << ".";
+        
         /*************************************************************/
         // Step 5
         // Remove the hits from any track that was found
@@ -1017,7 +1056,7 @@ class ForwardTrackMaker {
         
         LOG_DEBUG << " FITTING " << mRecoTracksThisItertion.size() << " now" << endm;
 
-        if ( mRecoTracksThisItertion.size() < 201 ){
+        if ( mRecoTracksThisItertion.size() < 1001 ){
             doTrackFitting( mRecoTracksThisItertion );
         } else {
             LOG_ERROR << "BAILING OUT of fit, too many track candidates" << endm;
@@ -1030,6 +1069,7 @@ class ForwardTrackMaker {
         // Add the set of all accepted tracks (this iteration) to our collection of found tracks from all iterations
         mRecoTracks.insert( mRecoTracks.end(), mRecoTracksThisItertion.begin(), mRecoTracksThisItertion.end() );
 
+        LOG_DEBUG << "doTrackIteration Complete" << endm;
     } // doTrackIteration
 
     void addSiHitsMc() {
@@ -1138,19 +1178,19 @@ class ForwardTrackMaker {
             }
 
             //  TODO: HANDLE multiple points found?
-            if ( hits_near_disk0.size() == 1 ) {
+            if ( hits_near_disk0.size() >= 1 ) {
                 hits_to_add.push_back( hits_near_disk0[0] );
                 nSiHitsFound++;
             } else {
                 hits_to_add.push_back( nullptr );
             }
-            if ( hits_near_disk1.size() == 1 ) {
+            if ( hits_near_disk1.size() >= 1 ) {
                 hits_to_add.push_back( hits_near_disk1[0] );
                 nSiHitsFound++;
             } else {
                 hits_to_add.push_back( nullptr );
             }
-            if ( hits_near_disk2.size() == 1 ) {
+            if ( hits_near_disk2.size() >= 1 ) {
                 hits_to_add.push_back( hits_near_disk2[0] );
                 nSiHitsFound++;
             } else {
@@ -1193,7 +1233,7 @@ class ForwardTrackMaker {
         } // loop on globals
     }     // addSiHits
 
-    Seed_t findSiHitsNearMe(Seed_t &available_hits, genfit::MeasuredStateOnPlane &msp, double dphi = 0.004 * 9.5, double dr = 2.75) {
+    Seed_t findSiHitsNearMe(Seed_t &available_hits, genfit::MeasuredStateOnPlane &msp, double dphi = 0.004 * 20.5, double dr = 2.75 * 2) {
         double probe_phi = TMath::ATan2(msp.getPos().Y(), msp.getPos().X());
         double probe_r = sqrt(pow(msp.getPos().X(), 2) + pow(msp.getPos().Y(), 2));
 
@@ -1203,6 +1243,8 @@ class ForwardTrackMaker {
             double h_phi = TMath::ATan2(h->getY(), h->getX());
             double h_r = sqrt(pow(h->getX(), 2) + pow(h->getY(), 2));
             double mdphi = fabs(h_phi - probe_phi);
+            if (mdphi > 2*3.1415926)
+                mdphi = mdphi - 2*3.1415926;
             
             if ( mdphi < dphi && fabs( h_r - probe_r ) < dr) { // handle 2pi edge
                 found_hits.push_back(h);
@@ -1210,6 +1252,72 @@ class ForwardTrackMaker {
         }
 
         return found_hits;
+    }
+
+    vector<Seed_t> findFstSeeds( ) {
+        long long itStart = FwdTrackerUtils::nowNanoSecond();
+        // Get FTT Hits for track finding
+        // FwdDataSource::HitMap_t &fttHitmap = mDataSource->getFttHits();
+        FwdDataSource::HitMap_t &fstHitmap = mDataSource->getFstHits();
+        FwdDataSource::HitMap_t testHitmap;
+
+        vector<Seed_t> seeds;
+
+        LOG_INFO << "Making CovMatrix" << endm;
+        TMatrixDSym hitCov3(3);
+        const double sigXY = 0.2; // 
+        hitCov3(0, 0) = sigXY * sigXY;
+        hitCov3(1, 1) = sigXY * sigXY;
+        hitCov3(2, 2) = 4; // unused since they are loaded as points on plane
+
+        LOG_INFO << "Making mock hits in hitmap" << endm;
+        int vid = 1;
+        //                      index, x,   y,   z,      sec,    tid, cov,     mcTrack
+        FwdHit *hit = new FwdHit(0,    1.0, 1.0, 151.75,  vid,   0,   hitCov3, nullptr);
+        testHitmap[vid].push_back( hit ); vid++;
+                hit = new FwdHit(1,    1.0, 1.0, 165.248, vid,  0,  hitCov3, nullptr);
+        testHitmap[vid].push_back( hit ); vid++;
+                hit = new FwdHit(2,    1.0, 1.0, 178.781, vid,  0,  hitCov3, nullptr);
+        testHitmap[vid].push_back( hit ); vid++;
+                hit = new FwdHit(3,    1.0, 1.0, 188.781, vid,  0,  hitCov3, nullptr);
+        testHitmap[vid].push_back( hit ); vid++;
+
+        LOG_INFO << "Setting up Segment Builder" << endm;
+        KiTrack::SegmentBuilder builder( testHitmap );
+
+        mTwoHitCrit.clear();
+        auto criteriaPath = "TrackFinder.SegmentBuilder";
+        mTwoHitCrit = loadCriteria(criteriaPath);
+        // builder.addCriteria(mTwoHitCrit);
+
+        unsigned int distance = 1;
+        
+        FwdConnector connector(distance);
+        builder.addSectorConnector(&connector);
+
+        // Get the segments and return an automaton object for further work
+        
+        LOG_INFO << "Getting 1SegAutomaton" << endm;
+        KiTrack::Automaton automaton = builder.get1SegAutomaton();
+        LOG_INFO << TString::Format( "nSegments=%lu", automaton.getSegments().size() ).Data() << endm;
+        LOG_INFO << TString::Format( "nConnections=%u", automaton.getNumberOfConnections() ).Data() << endm;
+
+        automaton.clearCriteria();
+        automaton.resetStates();
+        // automaton.doAutomaton();
+
+        // mThreeHitCrit.clear();
+        // mThreeHitCrit = loadCriteria(criteriaPath);
+        // automaton.addCriteria(mThreeHitCrit);
+        automaton.lengthenSegments();
+
+        LOG_INFO << TString::Format( "nSegments=%lu", automaton.getSegments().size() ).Data() << endm;
+        LOG_INFO << TString::Format( "nConnections=%u", automaton.getNumberOfConnections() ).Data() << endm;
+
+        long long duration = (FwdTrackerUtils::nowNanoSecond() - itStart) * 1e-6; // milliseconds
+        LOG_INFO << "Finding FST Seeds took : " << duration  << " ms"<< endm;
+
+        return seeds;
     }
 
     bool getSaveCriteriaValues() { return mSaveCriteriaValues; }

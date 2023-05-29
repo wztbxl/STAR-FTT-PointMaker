@@ -9,6 +9,7 @@
 // STL includes
 #include <vector>
 #include <memory>
+#include <map>
 
 class StFwdTrack;
 
@@ -30,6 +31,8 @@ class StFwdAnalysisMaker : public StMaker {
 
   private:
   protected:
+
+  std::map<TString, TH1*> mHists;
 };
 
 #endif

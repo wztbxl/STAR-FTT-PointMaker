@@ -51,13 +51,13 @@ class McTrack {
     }
 
     void addHit(KiTrack::IHit *hit) { mHits.push_back(hit); }
-    // void addFstHit(KiTrack::IHit *hit) { mFstHits.push_back(hit); }
+    void addFstHit(KiTrack::IHit *hit) { mFstHits.push_back(hit); }
 
     double mPt, mEta, mPhi;
     int mTid, mQ, mStartVertex;
 
     std::vector<KiTrack::IHit *> mHits;
-    // std::vector<KiTrack::IHit *> mFstHits;
+    std::vector<KiTrack::IHit *> mFstHits;
 };
 
 
@@ -118,7 +118,6 @@ class FwdConnector : public KiTrack::ISectorConnector {
 
     // Return the possible sectors (layers) given current
     virtual std::set<int> getTargetSectors(int disk) {
-
         std::set<int> r;
 
         if (disk > 0 && _distance >= 1)

@@ -335,6 +335,11 @@ class TrackFitter {
             // failure
             return 0.0;
         }
+
+        // for ( auto h : trackCand ){
+        //     TVector3 h3( h->getX(), h->getY(), h->getZ() );
+        //     LOG_INFO << "h " << TString::Format( "(r=%f, phi=%f, z=%f)", h3.Perp(), h3.Phi(), h3.Z() );
+        // }
             
 
         // we want to use the LAST 3 hits, since silicon doesnt have R information
@@ -343,19 +348,33 @@ class TrackFitter {
         FwdHit *hit_closest_to_IP = static_cast<FwdHit *>(trackCand[0]);
 
         // maps from <key=vol_id> to <value=index in trackCand>
-        std::map<size_t, size_t> vol_map; 
+        std::map<size_t, int> vol_map; 
 
         // init the map
         for (size_t i = 0; i < 13; i++)
             vol_map[i] = -1;
 
+        vector<size_t> idx;
         for (size_t i = 0; i < trackCand.size(); i++) {
             auto fwdHit = static_cast<FwdHit *>(trackCand[i]);
-            vol_map[abs(fwdHit->_vid)] = i;
+            if (vol_map[ abs(fwdHit->_vid) ] == -1)
+                idx.push_back(fwdHit->_vid);
+            vol_map[abs(fwdHit->_vid)] = (int)i;
+            
             // find the hit closest to IP for the initial position seed
             if (hit_closest_to_IP->getZ() > fwdHit->getZ())
                 hit_closest_to_IP = fwdHit;
         }
+
+        // for ( auto vm : vol_map ) {
+        //     LOG_INFO << "vol_map[" << vm.first << "] = " << vm.second << endm;
+        // }
+        // LOG_INFO << "idx: ";
+        // for (auto i : idx){
+        //     LOG_INFO << i << " ";
+        // }
+        // LOG_INFO << endm;
+        
 
         // now get an estimate of the pT from several overlapping simple circle fits
         // enumerate the available partitions
@@ -364,10 +383,19 @@ class TrackFitter {
         // 12 10 9
         // 11 10 9
         vector<float> curvs;
-        curvs.push_back(fitSimpleCircle(trackCand, vol_map[12], vol_map[11], vol_map[10]));
-        curvs.push_back(fitSimpleCircle(trackCand, vol_map[12], vol_map[11], vol_map[9]));
-        curvs.push_back(fitSimpleCircle(trackCand, vol_map[12], vol_map[10], vol_map[9]));
-        curvs.push_back(fitSimpleCircle(trackCand, vol_map[11], vol_map[10], vol_map[9]));
+
+        if (idx.size() < 3){
+            return 0.0;
+        }
+
+        if ( idx.size() == 3 ){
+            curvs.push_back(fitSimpleCircle(trackCand, vol_map[idx[0]], vol_map[idx[1]], vol_map[idx[2]]));
+        } else if ( idx.size() >= 4 ){
+            curvs.push_back(fitSimpleCircle(trackCand, vol_map[idx[0]], vol_map[idx[1]], vol_map[idx[2]]));
+            curvs.push_back(fitSimpleCircle(trackCand, vol_map[idx[0]], vol_map[idx[1]], vol_map[idx[3]]));
+            curvs.push_back(fitSimpleCircle(trackCand, vol_map[idx[0]], vol_map[idx[2]], vol_map[idx[3]]));
+            curvs.push_back(fitSimpleCircle(trackCand, vol_map[idx[1]], vol_map[idx[2]], vol_map[idx[3]]));   
+        }
 
         // average them and exclude failed fits
         float mcurv = 0;
@@ -385,15 +413,16 @@ class TrackFitter {
         if (nmeas >= 1)
             mcurv = mcurv / nmeas;
         else
-            mcurv = 10;
+            mcurv = 100;
 
         // Now lets get eta information
-        // simpler, use farthest points from IP
-        if (vol_map[9] < 13)
-            p0.SetXYZ(trackCand[vol_map[9]]->getX(), trackCand[vol_map[9]]->getY(), trackCand[vol_map[9]]->getZ());
+        p0.SetXYZ(trackCand[vol_map[idx[0]]]->getX(), trackCand[vol_map[idx[0]]]->getY(), trackCand[vol_map[idx[0]]]->getZ());
+        p1.SetXYZ(trackCand[vol_map[idx[1]]]->getX(), trackCand[vol_map[idx[1]]]->getY(), trackCand[vol_map[idx[1]]]->getZ());
+        if ( abs(p0.X() - p1.X()) < 1e-6 ){
+            p1.SetXYZ(trackCand[vol_map[idx[2]]]->getX(), trackCand[vol_map[idx[2]]]->getY(), trackCand[vol_map[idx[2]]]->getZ());
+        }
 
-        if (vol_map[10] < 13)
-            p1.SetXYZ(trackCand[vol_map[10]]->getX(), trackCand[vol_map[10]]->getY(), trackCand[vol_map[10]]->getZ());
+        LOG_INFO << TString::Format( "p0 (%f, %f, %f), p1 (%f, %f, %f)", p0.X(), p0.Y(), p0.Z(), p1.X(), p1.Y(), p1.Z() ) << endm;
 
         const double K = 0.00029979; //K depends on the units used for Bfield
         double pt = mcurv * K * 5; // pT from average measured curv
@@ -403,6 +432,11 @@ class TrackFitter {
         double phi = TMath::ATan2(dy, dx);
         double Rxy = sqrt(dx * dx + dy * dy);
         double theta = TMath::ATan2(Rxy, dz);
+        if (abs(dx) < 1e-6 || abs(dy) < 1e-6)
+            phi = TMath::ATan2( p1.Y(), p1.X() );
+            Rxy = sqrt( p0.X()*p0.X() + p0.Y()*p0.Y() );
+            theta = TMath::ATan2(Rxy, p0.Z());
+        LOG_INFO << TString::Format( "pt=%f, dx=%f, dy=%f, dz=%f, phi=%f, theta=%f", pt, dx, dy, dz, phi, theta ) << endm;
         // double eta = -log( tantheta / 2.0 );
         // these starting conditions can probably be improvd, good study for student
 
@@ -771,8 +805,10 @@ class TrackFitter {
         TVector3 seedMom, seedPos;
         // returns track curvature if needed
         seedState(trackCand, seedPos, seedMom);
+        LOG_INFO << "Computed seedMom : (" << seedMom.Pt() << ", " << seedMom.Eta() << ", " << seedMom.Phi() << " )" << endm;
 
         if (McSeedMom != nullptr) {
+            LOG_INFO << "Using MC seed Momentum" << endm;
             seedMom = *McSeedMom;
         }
 
@@ -832,17 +868,25 @@ class TrackFitter {
 
             hitCoords[0] = h->getX();
             hitCoords[1] = h->getY();
-            
+
+            const bool isFTT = h->getZ() > 200;
             genfit::PlanarMeasurement *measurement = new genfit::PlanarMeasurement(hitCoords, CovMatPlane(h), h->getSector(), ++hitId, nullptr);
 
             planeId = h->getSector();
+            LOG_INFO << "Hit Sector (PlaneId): " << planeId << " and hit.Z = " << h->getZ() << endm;
 
-            if (mFTTPlanes.size() <= planeId) {
+            genfit::SharedPlanePtr plane;
+
+            if (isFTT && mFTTPlanes.size() <= planeId) {
                 LOG_WARN << "invalid VolumId -> out of bounds DetPlane, vid = " << planeId << endm;
                 return TVector3(0, 0, 0);
             }
 
-            auto plane = mFTTPlanes[planeId];
+            if (isFTT)
+                plane = mFTTPlanes[planeId];
+            else 
+                plane = getFstPlane( static_cast<FwdHit*>(h) );
+
             measurement->setPlane(plane, planeId);
             fitTrack.insertPoint(new genfit::TrackPoint(measurement, &fitTrack));
 

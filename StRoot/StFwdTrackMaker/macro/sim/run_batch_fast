@@ -16,7 +16,7 @@ pid=${4:-5} # default muon
 # 
 echo "Usage:\n rbfast <jobId> <nEvents> <run_sim> <pid>"
 echo "jobId=${jobId}, nEvents=${nEvents}, run_sim=${sim}, pid=${pid}"
-source env.sh
+# source env.sh
 
 # 
 # Run simulation if needed
