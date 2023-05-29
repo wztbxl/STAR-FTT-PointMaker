@@ -1,7 +1,7 @@
 //usr/bin/env root4star -l -b -q  $0; exit $?
 // that is a valid shebang to run script as executable
 
-void daq_track(    int n = 1500,
+void daq_track(    int n = 50,
                     const char *inFile = "/gpfs01/star/pwg_tasks/FwdCalib/DAQ/zfa/st_physics_23072003_raw_3000004.daq",
                     std::string configFile = "daq/daq_track.xml",
                     const char *geom = "y2023") {
