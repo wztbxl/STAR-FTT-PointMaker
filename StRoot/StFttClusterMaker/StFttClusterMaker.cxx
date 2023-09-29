@@ -385,14 +385,11 @@ std::vector<StFttCluster*> StFttClusterMaker::FindClusters( std::vector< StFttRa
         clu->setQuadrant    ( maxAdcHit->quadrant    ( ) );
         clu->setRow         ( maxAdcHit->row         ( ) );
         clu->setOrientation ( maxAdcHit->orientation ( ) );
-        clu->setIndexMaxStrip 
-                            ( maxAdcHit->strip()         );
-        clu->setMaxStripCenter
-                            ( maxAdcHit->stripCenter()   );
-        clu->setMaxStripLeftEdge
-                            ( maxAdcHit->stripLeftEdge() );
-        clu->setMaxStripRightEdge
-                            ( maxAdcHit->stripRightEdge() );
+        clu->setIndexMaxStrip( maxAdcHit->strip());
+        clu->setMaxStripLength( maxAdcHit->stripLength());
+        clu->setMaxStripCenter( maxAdcHit->stripCenter());
+        clu->setMaxStripLeftEdge( maxAdcHit->stripLeftEdge() );
+        clu->setMaxStripRightEdge( maxAdcHit->stripRightEdge() );
 
         // Now find the cluster edges
         size_t left = anchor, right = anchor;

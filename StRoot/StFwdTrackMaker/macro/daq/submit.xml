@@ -1,18 +1,19 @@
 <job  name="FwdTracking"  simulateSubmission="false" maxFilesPerProcess="1" filesPerHour="10" fileListSyntax="paths">
 
-    <input URL="filelist:/gpfs01/star/pwg_tasks/FwdCalib//DAQ/zfa/st_physics_23072003.lis" nFiles="500" />
+  <input URL="filelist:/star/u/wangzhen/sTGC/Tracker/TrackMaker/fwd-dev2/daqFile.list" nFiles="100" />
 
     <!-- Modify these for your case -->
-    <stdout URL="file:/gpfs01/star/pwg_tasks/FwdCalib/PROD/zfa/log/log_$JOBID.log" />
-    <stderr URL="file:/gpfs01/star/pwg_tasks/FwdCalib/PROD/zfa/log/err_$JOBID.err" />
+    <stdout URL="file:/gpfs01/star/pwg_tasks/FwdCalib/wangzhen/PointMaker/TrackMaker/fwd-dev2/log/log_$JOBID.log" />
+    <stderr URL="file:/gpfs01/star/pwg_tasks/FwdCalib/wangzhen/PointMaker/TrackMaker/fwd-dev2/log/err_$JOBID.err" />
 
-    <output fromScratch="*.trackingQA.root" toURL="file:/gpfs01/star/pwg_tasks/FwdCalib/PROD/zfa/out5/" />
-    <output fromScratch="*.fwdtree.root" toURL="file:/gpfs01/star/pwg_tasks/FwdCalib/PROD/zfa/out5/" />
-    <output fromScratch="*.event.root" toURL="file:/gpfs01/star/pwg_tasks/FwdCalib/PROD/zfa/out5/" />
-    <output fromScratch="*.MuDst.root" toURL="file:/gpfs01/star/pwg_tasks/FwdCalib/PROD/zfa/out5/" />
-    <output fromScratch="*.fttQA.root" toURL="file:/gpfs01/star/pwg_tasks/FwdCalib/PROD/zfa/out5/" />
-    <output fromScratch="*.fstQa.root" toURL="file:/gpfs01/star/pwg_tasks/FwdCalib/PROD/zfa/out5/" />
-    <!-- <output fromScratch="*.fttRawHitTime.dat" toURL="file:/gpfs01/star/pwg_tasks/FwdCalib/PROD/zfa/out/" /> -->
+    <output fromScratch="*.trackingQA.root" toURL="file:/gpfs01/star/pwg_tasks/FwdCalib/wangzhen/PointMaker/TrackMaker/fwd-dev2/output/" />
+    <output fromScratch="*.fwdtree.root" toURL="file:/gpfs01/star/pwg_tasks/FwdCalib/wangzhen/PointMaker/TrackMaker/fwd-dev2/output/" />
+    <output fromScratch="*.event.root" toURL="file:/gpfs01/star/pwg_tasks/FwdCalib/wangzhen/PointMaker/TrackMaker/fwd-dev2/output/" />
+    <output fromScratch="*.MuDst.root" toURL="file:/gpfs01/star/pwg_tasks/FwdCalib/wangzhen/PointMaker/TrackMaker/fwd-dev2/output/" />
+    <output fromScratch="*.fttQA.root" toURL="file:/gpfs01/star/pwg_tasks/FwdCalib/wangzhen/PointMaker/TrackMaker/fwd-dev2/output/" />
+    <output fromScratch="*.fstQa.root" toURL="file:/gpfs01/star/pwg_tasks/FwdCalib/wangzhen/PointMaker/TrackMaker/fwd-dev2/output/" />
+    <output fromScratch="*ev*.obj" toURL="file:/gpfs01/star/pwg_tasks/FwdCalib/wangzhen/PointMaker/TrackMaker/fwd-dev2/output/" />
+    <output fromScratch="*.FwdAna.root" toURL="file:/gpfs01/star/pwg_tasks/FwdCalib/wangzhen/PointMaker/TrackMaker/fwd-dev2/output/" />
 
     <command>
         echo "JOBINDEX = ${JOBINDEX}"
@@ -27,20 +28,16 @@
         starver dev config/v0.2.3-rhel7-root5.34.38-64b
 
         echo "Starting job"
-        root4star -b -q -l 'daq/daq_track.C( 100, "'$INPUTFILE0'" )' 
+        root4star -b -q -l 'daq/daq_track.C( 1000, "'$INPUTFILE0'", "daq/ftt_track.xml" )' 
         echo "Job complete"
 
         mv daq.root ${FILEBASENAME}.trackingQA.root
         mv fwdtree.root ${FILEBASENAME}.fwdtree.root
         mv fttQA.root ${FILEBASENAME}.fttQA.root
-
         mv FwdAna.root ${FILEBASENAME}.FwdAna.root
+        rename ev ${FILEBASENAME}_ev ev*.obj
 
-        <!-- mv OUTPUT.event.root ${FILEBASENAME}.event.root -->
-        <!-- mv OUTPUT.MuDst.root ${FILEBASENAME}.MuDst.root -->
-        
         <!-- mv fttRawHitTime.dat ${FILEBASENAME}.fttRawHitTime.dat -->
-        <!-- mv OUTPUT.fstQa.root ${FILEBASENAME}.fstQa.root -->
     </command>
 
     <SandBox>
@@ -52,6 +49,6 @@
     </SandBox>
 
     <Generator>
-        <Location>/gpfs01/star/pwg_tasks/FwdCalib/PROD/zfa/gen</Location>
+      <Location>/gpfs01/star/pwg_tasks/FwdCalib/wangzhen/PointMaker/TrackMaker/fwd-dev2/gen</Location>
     </Generator>
 </job>

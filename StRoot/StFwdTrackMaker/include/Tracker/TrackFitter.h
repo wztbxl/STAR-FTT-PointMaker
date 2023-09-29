@@ -532,8 +532,9 @@ class TrackFitter {
             return pOrig;
         }
 
-        TVectorD rawCoords = trackPoints[0]->getRawMeasurement()->getRawHitCoords();
-        double z = mFSTZLocations[0]; //first FTT plane, used if we dont have PV in fit
+        // points are in reverse order, so n-1 is closest to IP (double check this)
+        TVectorD rawCoords = trackPoints[trackPoints.size()-1]->getRawMeasurement()->getRawHitCoords();
+        double z = mFTTZLocations[0]; //first FTT plane, used if we dont have PV in fit
         if (mIncludeVertexInFit)
             z = rawCoords(2);
 

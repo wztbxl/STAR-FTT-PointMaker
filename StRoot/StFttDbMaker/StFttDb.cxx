@@ -27,7 +27,14 @@ double StFttDb::idealPlaneZLocations[] = { 281.082,304.062,325.058,348.068 };
 double StFttDb::HVStripShift = 15.95;//mm
 double StFttDb::DiagStripShift = 19.42;//mm
 vector<string> StFttDb::orientationLabels = { "Horizontal", "Vertical", "DiagonalH", "DiagonalV", "Unknown" };
-
+double StFttDb::X_shift_QuadA[] = {8.09, 8.34, 6.62,7.54 };//mm 
+double StFttDb::X_shift_QuadB[] = {112.74, 112.14, 113.30, 113.49};//mm 
+double StFttDb::X_shift_QuadC[] = {-107.51, -108.22, -109.87, -108.91};//mm 
+double StFttDb::X_shift_QuadD[] = {-3.69, -4.96, -4.36, -3.75};//mm 
+double StFttDb::Y_shift_QuadA[] = {95.34, 94.33, 96.03, 95.01};//mm 
+double StFttDb::Y_shift_QuadB[] = {84.24, 83.37, 83.61, 83.81};//mm
+double StFttDb::Y_shift_QuadC[] = {83.60, 83.42, 84.37, 82.81};//mm
+double StFttDb::Y_shift_QuadD[] = {95.70, 94.40, 95.55, 94.16};//mm
 
 StFttDb::StFttDb(const char *name) : TDataSet(name) {}; 
 
@@ -337,6 +344,178 @@ bool StFttDb::loadStripEdgeFromFile( std::string fn ){
     return kTRUE;
 }
 
+//load the strip length information from the files. this will be used to set as the sigma along the strip direction 
+bool StFttDb::loadStripLengthFromFile( std::string fn ){
+    std::ifstream inf;
+    inf.open( fn.c_str() );
+    if ( !inf ) {
+        LOG_WARN << "sTGC Stirp length file not found" << endm;
+        return kFALSE;
+    }
+    std::string st1 = "Row1";
+    std::string st2 = "Row2";
+    std::string st3 = "Row3";
+    std::string st4 = "Row4";
+    std::string st5 = "Row5";
+
+    //check the input file, input file should be Row1 or Row4
+    //Row1 for H&V; Row4 for Diagonal
+    size_t idx1 = fn.find(st1);
+    size_t idx2 = fn.find(st2);
+    size_t idx3 = fn.find(st3);
+    size_t idx4 = fn.find(st4);
+    size_t idx5 = fn.find(st5);
+    if( idx1 == string::npos && idx2 == string::npos  && idx3 == string::npos  && idx4 == string::npos  && idx5 == string::npos )
+    {
+        cout<< "Wrong Input Strip Length File !!!!!!!!!!!" << endl;
+        return kFALSE;
+    }
+
+    if ( idx1 != string::npos ) // load the Row1(H/V with most strips)
+    {
+        slMapRow1.clear();
+
+        //File Header
+        std::string nStrip;
+        std::string StripLength;
+        inf >> nStrip >> StripLength;
+        if (mDebug)
+        {
+            printf( "File Header: %s, %s", nStrip.c_str(), StripLength.c_str());
+        }
+
+        //read strip Center info
+        int n_strip; Float_t pos_strip_length;
+        while (inf >> nStrip >> StripLength)
+        {
+            n_strip = atoi(nStrip.c_str());
+            pos_strip_length = atof(StripLength.c_str());
+
+            if (mDebug)
+            {
+                LOG_INFO << "Strip " << n_strip << " with Length" << pos_strip_length << endm;
+            }
+            slMapRow1[n_strip] = pos_strip_length;
+        }
+    }
+
+    if ( idx2 != string::npos ) // load the Row2(H/V with second largest strip group)
+    {
+        slMapRow2.clear();
+
+        //File Header
+        std::string nStrip;
+        std::string StripLength;
+        inf >> nStrip >> StripLength;
+        if (mDebug)
+        {
+            printf( "File Header: %s, %s", nStrip.c_str(), StripLength.c_str());
+        }
+
+        //read strip Center info
+        int n_strip; Float_t pos_strip_length;
+        while (inf >> nStrip >> StripLength)
+        {
+            n_strip = atoi(nStrip.c_str());
+            pos_strip_length = atof(StripLength.c_str());
+
+            if (mDebug)
+            {
+                LOG_INFO << "Strip " << n_strip << " with Length" << pos_strip_length << endm;
+            }
+            slMapRow2[n_strip] = pos_strip_length;
+        }
+    }
+
+    if ( idx3 != string::npos ) // load the Row3(H/V with third largest strip group)
+    {
+        slMapRow3.clear();
+
+        //File Header
+        std::string nStrip;
+        std::string StripLength;
+        inf >> nStrip >> StripLength;
+        if (mDebug)
+        {
+            printf( "File Header: %s, %s", nStrip.c_str(), StripLength.c_str());
+        }
+
+        //read strip Center info
+        int n_strip; Float_t pos_strip_length;
+        while (inf >> nStrip >> StripLength)
+        {
+            n_strip = atoi(nStrip.c_str());
+            pos_strip_length = atof(StripLength.c_str());
+
+            if (mDebug)
+            {
+                LOG_INFO << "Strip " << n_strip << " with Length" << pos_strip_length << endm;
+            }
+            slMapRow3[n_strip] = pos_strip_length;
+        }
+    }
+
+    if ( idx4 != string::npos ) // load the Row4(digonal with largest strips)
+    {
+        slMapRow4.clear();
+
+        //File Header
+        std::string nStrip;
+        std::string StripLength;
+        inf >> nStrip >> StripLength;
+        if (mDebug)
+        {
+            printf( "File Header: %s, %s", nStrip.c_str(), StripLength.c_str());
+        }
+
+        //read strip Center info
+        int n_strip; Float_t pos_strip_length;
+        while (inf >> nStrip >> StripLength)
+        {
+            n_strip = atoi(nStrip.c_str());
+            pos_strip_length = atof(StripLength.c_str());
+
+            if (mDebug)
+            {
+                LOG_INFO << "Strip " << n_strip << " with Length" << pos_strip_length << endm;
+            }
+            slMapRow4[n_strip] = pos_strip_length;
+        }
+    }
+
+    if ( idx5 != string::npos ) // load the Row5(digonal with second largest strips)
+    {
+        slMapRow5.clear();
+
+        //File Header
+        std::string nStrip;
+        std::string StripLength;
+        inf >> nStrip >> StripLength;
+        if (mDebug)
+        {
+            printf( "File Header: %s, %s", nStrip.c_str(), StripLength.c_str());
+        }
+
+        //read strip Center info
+        int n_strip; Float_t pos_strip_length;
+        while (inf >> nStrip >> StripLength)
+        {
+            n_strip = atoi(nStrip.c_str());
+            pos_strip_length = atof(StripLength.c_str());
+
+            if (mDebug)
+            {
+                LOG_INFO << "Strip " << n_strip << " with Length" << pos_strip_length << endm;
+            }
+            slMapRow5[n_strip] = pos_strip_length;
+        }
+    }
+
+    inf.close();
+    LOG_INFO << "sTGC Strip Edges loaded from File: " << fn << endm;
+    return kTRUE;
+}
+
 // same for all planes
 // we have quadrants like:
 // 
@@ -425,11 +604,27 @@ bool StFttDb::hardwareMap( StFttRawHit * hit ) const{
         Float_t stripCenter = -1;
         Float_t stripLeftEdge = -1;
         Float_t stripRightEdge = -1;
+        Float_t stripLength = -1;
         if (orientation == kFttHorizontal || orientation == kFttVertical){
             if ( scMapXY.count( strip ) > 0 )
                 stripCenter = scMapXY.at(strip);
             else {
                 LOG_ERROR << "Cannot find StripCenter for " << strip << endm;
+            }
+            if ( slMapRow1.count( strip ) > 0 && row == 0)// for Strip Length infomation
+                stripLength = slMapRow1.at(strip);
+            else {
+                LOG_ERROR << "Cannot find StripLength for row " << row << " Strip " << strip << endm;
+            }
+            if ( slMapRow2.count( strip ) > 0 && row == 1)// for Strip Length infomation
+                stripLength = slMapRow2.at(strip);
+            else {
+                LOG_ERROR << "Cannot find StripLength for row " << row << " Strip " << strip << endm;
+            }
+            if ( slMapRow3.count( strip ) > 0 && row == 2)// for Strip Length infomation
+                stripLength = slMapRow3.at(strip);
+            else {
+                LOG_ERROR << "Cannot find StripLength for row " << row << " Strip " << strip << endm;
             }
         }
         if (orientation == kFttDiagonalH || orientation == kFttDiagonalV) {
@@ -448,8 +643,19 @@ bool StFttDb::hardwareMap( StFttRawHit * hit ) const{
             else {
                 LOG_ERROR << "Cannot find StripRightEdge for " << strip << endm;
             }
+            if (slMapRow4.count(strip) > 0 && row == 3)// for Strip Length infomation
+                stripLength = slMapRow4.at(strip);
+            else {
+                LOG_ERROR << "Cannot find StripLength for row " << row << " Strip " << strip << endm;
+            }
+            if (slMapRow5.count(strip) > 0 && row == 4)// for Strip Length infomation
+                stripLength = slMapRow5.at(strip);
+            else {
+                LOG_ERROR << "Cannot find StripLength for row " << row << " Strip " << strip << endm;
+            }
         }
         hit->setStripEdges( stripCenter, stripLeftEdge, stripRightEdge );
+        hit->setStripLength(stripLength);
 
         return true;
     }
@@ -509,15 +715,15 @@ void StFttDb::getGloablOffset( UChar_t plane, UChar_t quad,
     if ( plane < 4 )
         dz = StFttDb::idealPlaneZLocations[plane];
 
-    // upper quadrants are not displaced
+    // upper quadrants are not displacedi
     if ( quad == 0 )
-        dx = 0.0; 
+    {dx = StFttDb::X_shift_QuadA[plane]; dy = StFttDb::Y_shift_QuadA[plane];} 
     else if ( quad == 1 )
-        dx = StFttDb::lowerQuadOffsetX;
+    {dx = StFttDb::X_shift_QuadB[plane]; dy = StFttDb::Y_shift_QuadB[plane];} 
     else if ( quad == 2 )
-        dx = StFttDb::lowerQuadOffsetX;
+    {dx = StFttDb::X_shift_QuadC[plane]; dy = StFttDb::Y_shift_QuadC[plane];} 
     else if ( quad == 3 )
-        dx = 0.0;
+    {dx = StFttDb::X_shift_QuadD[plane]; dy = StFttDb::Y_shift_QuadD[plane];} 
 
     // these are the reflections of a pentagon into the symmetric shape for quadrants A, B, C, D
     if ( quad == 1 )

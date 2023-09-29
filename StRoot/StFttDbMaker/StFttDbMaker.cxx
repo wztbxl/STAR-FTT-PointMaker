@@ -42,6 +42,11 @@ int StFttDbMaker::InitRun(int runNumber) {
     mFttDb->loadStripCenterFromFile( "/star/u/wangzhen/sTGC/Commissioning/ClusterFinder/PointMaker_building_test_0616/star-sw-1/StRoot/StFwdTrackMaker/macro/Row1.txt" );
     mFttDb->loadStripEdgeFromFile( "/star/u/wangzhen/sTGC/Commissioning/ClusterFinder/PointMaker_building_test_0616/star-sw-1/StRoot/StFwdTrackMaker/macro/Row4_edge.txt" );
     mFttDb->loadStripCenterFromFile( "/star/u/wangzhen/sTGC/Commissioning/ClusterFinder/PointMaker_building_test_0616/star-sw-1/StRoot/StFwdTrackMaker/macro/Row4.txt" );
+    mFttDb->loadStripLengthFromFile( "StRoot/StFttDbMaker/Row1_StripLength.txt" );
+    mFttDb->loadStripLengthFromFile( "StRoot/StFttDbMaker/Row2_StripLength.txt" );
+    mFttDb->loadStripLengthFromFile( "StRoot/StFttDbMaker/Row3_StripLength.txt" );
+    mFttDb->loadStripLengthFromFile( "StRoot/StFttDbMaker/Row4_StripLength.txt" );
+    mFttDb->loadStripLengthFromFile( "StRoot/StFttDbMaker/Row5_StripLength.txt" );
 
     std::ifstream file("vmm_map.dat");
     if(file.is_open()){ // debugging / calibration only

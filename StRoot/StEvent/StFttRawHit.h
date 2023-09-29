@@ -37,6 +37,8 @@ public:
 
     void setStripEdges( Float_t mStripCenter, Float_t mStripLeftEdge, Float_t mStripRightEdge );
 
+    void setStripLength( Float_t mStripLength );
+
     void setTime( Short_t mTime ) { this->mTime = mTime; }
     // consant getters
 
@@ -56,6 +58,7 @@ public:
     UChar_t row() const;
     UChar_t strip() const;
     Float_t stripCenter() const;
+    Float_t stripLength() const;
     Float_t stripLeftEdge() const;
     Float_t stripRightEdge() const;
     UChar_t orientation() const;
@@ -80,6 +83,7 @@ protected:
     Float_t mStripCenter;
     Float_t mStripLeftEdge;
     Float_t mStripRightEdge;
+    Float_t mStripLength;
     UChar_t mOrientation;
 
     // StFttCluster *mCluster;
@@ -107,6 +111,7 @@ inline UChar_t  StFttRawHit::row()         const { return mRow;         };
 inline UChar_t  StFttRawHit::strip()       const { return mStrip;       };
 inline UChar_t  StFttRawHit::orientation() const { return mOrientation; };
 inline Float_t  StFttRawHit::stripCenter() const { return mStripCenter;};
+inline Float_t  StFttRawHit::stripLength() const { return mStripLength;};
 inline Float_t  StFttRawHit::stripLeftEdge() const { return mStripLeftEdge; };
 inline Float_t  StFttRawHit::stripRightEdge() const { return mStripRightEdge; };
 

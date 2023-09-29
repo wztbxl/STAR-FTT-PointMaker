@@ -69,6 +69,11 @@ void StFttRawHit::setStripEdges( Float_t mStripCenter, Float_t mStripLeftEdge, F
     this->mStripRightEdge   = mStripRightEdge;
 }
 
+void StFttRawHit::setStripLength( Float_t mStripLength )
+{
+    this->mStripLength = mStripLength;
+}
+
 ostream&
 operator<<( ostream &os, const StFttRawHit& rh )
 {

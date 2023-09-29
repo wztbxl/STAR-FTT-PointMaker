@@ -788,7 +788,7 @@ void StFwdTrackMaker::loadFstHits( FwdDataSource::McTrackMap_t &mcTrackMap, FwdD
                 }
             } // loop is
         } // loop iw
-        LOG_DEBUG << " FOUND " << mFstHits.size() << " FST HITS" << endm;
+        LOG_DEBUG << " FOUND " << mFstHits.size() << " FST HITS (fstN=" << mTreeData.fstN << ")" << endm;
         return;
     } // fstHitCollection
 
@@ -1207,8 +1207,14 @@ int StFwdTrackMaker::Make() {
     /**********************************************************************/
     // Run Track finding + fitting
     
-    const auto &genfitTracks = mForwardTracker -> globalTracks();
-    if ( mVisualize /* && genfitTracks.size() > 0 && genfitTracks.size() < 200*/ ) {
+    // const auto &genfitTracks = mForwardTracker -> globalTracks();
+    std::vector<genfit::Track *> genfitTracks;
+    for ( auto gtr : mForwardTracker->getTrackResults() ) {
+        if ( gtr.isFitConvergedFully == false ) continue;
+        genfitTracks.push_back( gtr.track );
+    }
+
+    if ( mVisualize && genfitTracks.size() > 0 && genfitTracks.size() < 200 && eventIndex < 50 ) {
         const auto &seed_tracks = mForwardTracker -> getRecoTracks();
 
         ObjExporter woe;
@@ -1249,7 +1255,6 @@ int StFwdTrackMaker::Make() {
 
 
 StFwdTrack * StFwdTrackMaker::makeStFwdTrack( GenfitTrackResult &gtr, size_t indexTrack ){
-    LOG_DEBUG << "StFwdTrackMaker::makeStFwdTrack()" << endm;
     StFwdTrack *fwdTrack = new StFwdTrack(  );
 
     auto track = gtr.track;
@@ -1289,7 +1294,6 @@ StFwdTrack * StFwdTrackMaker::makeStFwdTrack( GenfitTrackResult &gtr, size_t ind
     TVector3 p = cr->getMom( track->getFittedState( 0, cr ));
     // fwdTrack->setPrimaryMomentum( StThreeVectorD( p.X(), p.Y(), p.Z() ) );
     fwdTrack->setPrimaryMomentum( StThreeVectorD( gtr.momentum.X(), gtr.momentum.Y(), gtr.momentum.Z() ) );
-    LOG_DEBUG << "Making StFwdTrack with " << TString::Format( "p=(%f, %f, %f)",  fwdTrack->momentum().x(), fwdTrack->momentum().y(), fwdTrack->momentum().z() ) << endm;
 
     int nSeedPoints = 0;
     // store the seed points from FTT
@@ -1319,7 +1323,6 @@ StFwdTrack * StFwdTrackMaker::makeStFwdTrack( GenfitTrackResult &gtr, size_t ind
         nSeedPoints++;
     }
 
-    LOG_DEBUG << "Seed Points added to StFwdTrack" << endm;
     // set total number of seed points
     fwdTrack->setNumberOfSeedPoints( nSeedPoints );
 
@@ -1392,7 +1395,6 @@ StFwdTrack * StFwdTrackMaker::makeStFwdTrack( GenfitTrackResult &gtr, size_t ind
 }
 
 void StFwdTrackMaker::FillEvent() {
-    LOG_DEBUG << "StFwdTrackMaker::FillEvent()" << endm;
     // Now fill StEvent
     StEvent *stEvent = static_cast<StEvent *>(GetInputDS("StEvent"));
     
@@ -1426,7 +1428,6 @@ void StFwdTrackMaker::FillEvent() {
 }
 
 void StFwdTrackMaker::FillTrackDeltas(){
-    LOG_DEBUG << "Filling Track Deltas for Alignment" << endm;
     const auto &fittedTracks = mForwardTracker -> getTrackResults();
 
     for ( size_t i = 0; i < fittedTracks.size(); i++ ){

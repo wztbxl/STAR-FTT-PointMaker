@@ -30,6 +30,7 @@ public:
 
     float maxADC() const;
     int   indexMaxStrip() const;
+    float maxStripLength() const;
     float maxStripCenter() const;
     float maxStripLeftEdge() const;
     float maxStripRightEdge() const;
@@ -47,6 +48,7 @@ public:
 
     void setMaxADC(int theMaxADC);
     void setIndexMaxStrip(int index);
+    void setMaxStripLength( float sl );
     void setMaxStripCenter(float sc);
     void setMaxStripLeftEdge(float LEdge);
     void setMaxStripRightEdge(float REdge);
@@ -76,6 +78,7 @@ private:
     Float_t mMaxADC = -999;     // ADC of the strip with maximum ADC
     Int_t   mIndexMaxStrip = -999;// index of the strip with maximum ADC
     Float_t mMaxStripCenter = -999;// Strip center of strip with maximum ADC
+    Float_t mMaxStripLength = -999;// Strip center of strip with maximum ADC
     Float_t mMaxStripLeftEdge = -999;//left edge of the strip with maximum ADC
     Float_t mMaxStripRightEdge = -999;//right edge of the strip with maximum ADC
     StPtrVecFttRawHit mRawHits;            // Tower hits of the current cluster
@@ -104,6 +107,7 @@ inline float StFttCluster::sigma() const { return mSigma; } // 2nd moment
 inline float StFttCluster::maxADC() const{ return mMaxADC; }
 inline int StFttCluster::indexMaxStrip() const { return mIndexMaxStrip; } 
 inline float StFttCluster::maxStripCenter() const { return mMaxStripCenter; } 
+inline float StFttCluster::maxStripLength() const { return mMaxStripLength; } 
 inline float StFttCluster::maxStripLeftEdge() const { return mMaxStripLeftEdge; } 
 inline float StFttCluster::maxStripRightEdge() const { return mMaxStripRightEdge; } 
 
@@ -120,6 +124,7 @@ inline void StFttCluster::setSigma(float sigma) { mSigma = sigma; }
 
 inline void StFttCluster::setMaxADC(int theMaxADC) {mMaxADC = theMaxADC;}
 inline void StFttCluster::setIndexMaxStrip( int index ) { mIndexMaxStrip = index; }
+inline void StFttCluster::setMaxStripLength( float sl ) { mMaxStripLength = sl; }
 inline void StFttCluster::setMaxStripCenter( float sc ) { mMaxStripCenter = sc; }
 inline void StFttCluster::setMaxStripLeftEdge( float LEdge ) { mMaxStripLeftEdge = LEdge; }
 inline void StFttCluster::setMaxStripRightEdge( float REdge ) { mMaxStripRightEdge = REdge; }

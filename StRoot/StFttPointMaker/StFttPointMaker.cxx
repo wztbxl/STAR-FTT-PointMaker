@@ -167,7 +167,7 @@ void StFttPointMaker::MakeGlobalPoints() {
         // sx is only {1,-1} -> reflected or normal
         float sx = 0, sy = 0, sz = 0;
         mFttDb->getGloablOffset( p->plane(), p->quadrant(), dx, sx, dy, sy, dz, sz );
-        global.set( (x + dx) * sx, (y + dy) * sy, (z + dz) * sz );
+        global.set( (x) * sx +dx, (y) * sy +dy, (z + dz) * sz );
         p->setXYZ( global );
     }
 }
@@ -367,7 +367,9 @@ void StFttPointMaker::MakeLocalPoints(UChar_t Rob)
                 {
                     // LOG_INFO << "debug Diag V1" << endm;
                     point->setX(x);
+                    point->setSigmaY(clu_x->maxStripLength()/TMath::Sqrt(12));
                     point->setY(y);
+                    point->setSigmaX(clu_y->maxStripLength()/TMath::Sqrt(12));
                     LOG_INFO << "Point (X,Y) = " << x << ", " << y << endm;
                     point->setPlane(clu_x->plane());
                     point->setQuadrant(clu_x->quadrant());

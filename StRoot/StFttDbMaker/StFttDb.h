@@ -57,6 +57,7 @@ public:
     void loadHardwareMapFromFile( std::string fn );
     bool loadStripCenterFromFile( std::string fn );
     bool loadStripEdgeFromFile( std::string fn );
+    bool loadStripLengthFromFile( std::string fn );
     void loadHardwareMapFromDb( St_fttHardwareMap * );
     void loadDataWindowsFromFile( std::string fn );
     void loadDataWindowsFromDb( St_fttDataWindows * );
@@ -80,6 +81,15 @@ public:
     static const size_t nFobPerQuad   = 6;
     static const size_t nVMMPerFob    = 4;
     static const size_t nChPerVMM     = 64;
+
+    static double X_shift_QuadA[nQuadPerPlane];//mm , x shift from pin hole to (0,0)
+    static double X_shift_QuadB[nQuadPerPlane];//mm , x shift from pin hole to (0,0)
+    static double X_shift_QuadC[nQuadPerPlane];//mm , x shift from pin hole to (0,0)
+    static double X_shift_QuadD[nQuadPerPlane];//mm , x shift from pin hole to (0,0)
+    static double Y_shift_QuadA[nQuadPerPlane];//mm , y shift from pin hole to (0,0)
+    static double Y_shift_QuadB[nQuadPerPlane];//mm , y shift from pin hole to (0,0)
+    static double Y_shift_QuadC[nQuadPerPlane];//mm , y shift from pin hole to (0,0)
+    static double Y_shift_QuadD[nQuadPerPlane];//mm , y shift from pin hole to (0,0)
 
     static const size_t nQuad = nQuadPerPlane * nPlane; // 4 * 4 = 16 Total number of Quadrants
     static const size_t nRob = nQuad;
@@ -161,6 +171,11 @@ public:
   std :: map< uint16_t , FttDataWindow > dwMap;
   std :: map< int , Float_t > scMapXY; // strip center map 
   std :: map< int , Float_t > scMapDiag; // strip center map 
+  std :: map< int , Float_t > slMapRow1; // strip length map
+  std :: map< int , Float_t > slMapRow2; // strip length map 
+  std :: map< int , Float_t > slMapRow3; // strip length map 
+  std :: map< int , Float_t > slMapRow4; // strip length map 
+  std :: map< int , Float_t > slMapRow5; // strip length map 
   std :: map< int , Float_t > seMapDiagLeft; // strip left edge map, just for the diagonal strips 
   std :: map< int , Float_t > seMapDiagRight; // strip right edge map, just for the diagonal strips
 

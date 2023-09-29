@@ -46,9 +46,7 @@ void event_track(   int n = 1000,
     }
 
     
-    gSystem->Load("StFwdUtils.so");
-    StFwdAnalysisMaker * fwdAna = new StFwdAnalysisMaker();
-    chain->AddMaker(fwdAna);
+    
 
     gSystem->Load( "libStFcsDbMaker.so" ) ;
     StFcsDbMaker * fcsDb = new StFcsDbMaker();
@@ -63,6 +61,11 @@ void event_track(   int n = 1000,
         match->SetDebug();
         chain->AddAfter( "fwdTrack", match);
     }
+
+
+    gSystem->Load("StFwdUtils.so");
+    StFwdAnalysisMaker * fwdAna = new StFwdAnalysisMaker();
+    chain->AddMaker(fwdAna);
 
     // Initialize the chain
     chain->Init();
