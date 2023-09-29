@@ -1,0 +1,1 @@
+root4star -b -q -l 'daq/daq_track.C( 10, "input.daq", "./daq/ftt_track.xml" )' >& DAQ_FTT.LOG
