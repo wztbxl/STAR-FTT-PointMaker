@@ -23,7 +23,9 @@ ClassImp(StFttDb)
 double StFttDb::stripPitch = 3.2; // mm
 double StFttDb::rowLength = 180; // mm
 double StFttDb::lowerQuadOffsetX = 101.6; // mm
-double StFttDb::idealPlaneZLocations[] = { 281.082,304.062,325.058,348.068 };
+// double StFttDb::idealPlaneZLocations[] = { 281.082,304.062,325.058,348.068 };//ideal position
+double StFttDb::idealPlaneZLocations[] = { 312.342,329.953,347.637,365.422 };//suvery data, cm or mm? now just use quad A's data
+double StFttDb::LocalStripZLocations[] = { 1.1,   ,1.53   ,2.18   ,2.61    };// from yingying's measurement, cm ,
 double StFttDb::HVStripShift = 15.95;//mm
 double StFttDb::DiagStripShift = 19.42;//mm
 vector<string> StFttDb::orientationLabels = { "Horizontal", "Vertical", "DiagonalH", "DiagonalV", "Unknown" };
@@ -31,10 +33,12 @@ double StFttDb::X_shift_QuadA[] = {8.09, 8.34, 6.62,7.54 };//mm
 double StFttDb::X_shift_QuadB[] = {112.74, 112.14, 113.30, 113.49};//mm 
 double StFttDb::X_shift_QuadC[] = {-107.51, -108.22, -109.87, -108.91};//mm 
 double StFttDb::X_shift_QuadD[] = {-3.69, -4.96, -4.36, -3.75};//mm 
+double StFttDb::X_StripGroupEdge[] = {14.60, 172.29, 216.89,315.4, 360.09, 410.9, 504.2, 545.19};//mm 
 double StFttDb::Y_shift_QuadA[] = {95.34, 94.33, 96.03, 95.01};//mm 
 double StFttDb::Y_shift_QuadB[] = {84.24, 83.37, 83.61, 83.81};//mm
 double StFttDb::Y_shift_QuadC[] = {83.60, 83.42, 84.37, 82.81};//mm
 double StFttDb::Y_shift_QuadD[] = {95.70, 94.40, 95.55, 94.16};//mm
+double StFttDb::Y_StripGroupEdge[] = {11.49};//mm 
 
 StFttDb::StFttDb(const char *name) : TDataSet(name) {}; 
 
@@ -657,6 +661,22 @@ bool StFttDb::hardwareMap( StFttRawHit * hit ) const{
         hit->setStripEdges( stripCenter, stripLeftEdge, stripRightEdge );
         hit->setStripLength(stripLength);
 
+        return true;
+    }
+    return false;
+}
+//used to reversve the map, from the hardware to electronic map
+// plane, quad, row and strip can be calculated from the simulation maker
+// the key issue if to figure out which feb, row, and strip is for the selected channel
+bool StFttDb::reverseHardwareMap( int &rob, int &feb, int &vmm, int &ch, int plane, int quad, int row, int strip, UChar_t &orientation ) const{
+    // uint16_t key = packKey( feb, vmm, ch );
+    uint16_t val = packVal( row, strip );
+    if ( rMap.count( val ) ){
+        uint16_t key = rMap.at( val );
+        unpackKey( key, feb, vmm, ch );//get the feb, vmm and channel information
+        rob = quad + ( plane *nQuadPerPlane ) + 1;// input plane and quad should start from 0;
+        
+        orientation = getOrientation( rob, feb, vmm, row );
         return true;
     }
     return false;
