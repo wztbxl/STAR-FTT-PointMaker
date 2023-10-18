@@ -177,7 +177,7 @@ protected:
     StPtrVecFcsCluster mEcalClusters; 
     StPtrVecFcsCluster mHcalClusters; 
     
-    ClassDef(StFwdTrack,1)
+    ClassDef(StFwdTrack,2)
 
 };
 
