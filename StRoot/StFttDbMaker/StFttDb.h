@@ -83,6 +83,11 @@ public:
     static const size_t nChPerVMM     = 64;
     static const size_t nStripGroupEdge = 8;
 
+    //for idealPlaneZLocations_QuadX, now using the cm as unit because that in the old version this using the cm as unit
+    static double idealPlaneZLocations_QuadA[nPlane];//cm
+    static double idealPlaneZLocations_QuadB[nPlane];
+    static double idealPlaneZLocations_QuadC[nPlane];
+    static double idealPlaneZLocations_QuadD[nPlane];
     static double X_shift_QuadA[nQuadPerPlane];//mm , x shift from pin hole to (0,0)
     static double X_shift_QuadB[nQuadPerPlane];//mm , x shift from pin hole to (0,0)
     static double X_shift_QuadC[nQuadPerPlane];//mm , x shift from pin hole to (0,0)
@@ -128,6 +133,7 @@ public:
     bool hardwareMap( StFttRawHit * rawHit ) const;
 
     void getGloablOffset( UChar_t plane, UChar_t quad, float &dx, float &sx, float &dy, float &sy, float &dz, float &sz );
+    void getGloablOffset_ClusterPoint( UChar_t plane, UChar_t quad, float &dx, float &sx, float &dy, float &sy, float &dz, float &sz );
 
     enum TimeCutMode {
       CalibratedBunchCrossingMode = 0,

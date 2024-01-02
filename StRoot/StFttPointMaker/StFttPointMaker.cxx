@@ -141,7 +141,7 @@ StFttPointMaker::Make()
         MakeLocalPoints((UChar_t)i); // make local points for each Quadrand
     }
     MakeGlobalPoints();
-    LOG_INFO << "StFttPointMaker made " << mFttCollection->numberOfPoints() << " points this event" << endm;
+    if(mDebug) LOG_INFO << "StFttPointMaker made " << mFttCollection->numberOfPoints() << " points this event" << endm;
 
     return kStOk;
 }
@@ -370,7 +370,7 @@ void StFttPointMaker::MakeLocalPoints(UChar_t Rob)
                     point->setSigmaY(clu_x->maxStripLength()/TMath::Sqrt(12));
                     point->setY(y);
                     point->setSigmaX(clu_y->maxStripLength()/TMath::Sqrt(12));
-                    LOG_INFO << "Point (X,Y) = " << x << ", " << y << endm;
+                    if(mDebug) LOG_INFO << "Point (X,Y) = " << x << ", " << y << endm;
                     point->setPlane(clu_x->plane());
                     point->setQuadrant(clu_x->quadrant());
                     point->addCluster(clu_x,kFttVertical);
@@ -399,7 +399,7 @@ void StFttPointMaker::MakeLocalPoints(UChar_t Rob)
 
                     // LOG_INFO << "debug Diag H2" << endm;
                     is_pair = kTRUE;
-                    LOG_INFO << "Point (X,Y) = " << x << ", " << y << endm;
+                    if(mDebug) LOG_INFO << "Point (X,Y) = " << x << ", " << y << endm;
                     point->setX(x);
                     point->setY(y);
                     point->setPlane(clu_x->plane());
@@ -408,7 +408,7 @@ void StFttPointMaker::MakeLocalPoints(UChar_t Rob)
                     point->addCluster(clu_x,kFttVertical);
                     // LOG_INFO << "debug Diag H4" << endm;
                     point->addCluster(clu_y,kFttHorizontal);
-                    LOG_INFO << "match diagonal cluster is " << i_cluster << " DH cluster" << endm;
+                    if(mDebug) LOG_INFO << "match diagonal cluster is " << i_cluster << " DH cluster" << endm;
                     auto clu_dh =  clustersPerRob[(UChar_t)Rob][kFttDiagonalH][i_cluster];
                     clu_dh->print();
                     point->setD1(clu_dh->x());
@@ -467,7 +467,7 @@ void StFttPointMaker::MakeLocalPoints(UChar_t Rob)
                     point->setQuadrant(clu_x->quadrant());
                     point->addCluster(clu_x,kFttVertical);
                     point->addCluster(clu_y,kFttHorizontal);
-                    LOG_INFO << "match diagonal cluster is " << i_cluster << " DV cluster" << endm;
+                    if(mDebug) LOG_INFO << "match diagonal cluster is " << i_cluster << " DV cluster" << endm;
                     auto clu_dv =  clustersPerRob[(UChar_t)Rob][kFttDiagonalV][i_cluster];
                     clu_dv->print();
                     point->setD1(clu_dv->x());
@@ -477,7 +477,7 @@ void StFttPointMaker::MakeLocalPoints(UChar_t Rob)
                 // LOG_INFO << "is pair = " << is_pair << endm;nn
                 if(is_pair)
                 {
-                    LOG_INFO << "PAIR Point (X,Y) = " << point->x() << ", " << point->y() << endm;
+                    if(mDebug) LOG_INFO << "PAIR Point (X,Y) = " << point->x() << ", " << point->y() << endm;
                     point->print();
                     mFttPoint.push_back(point);
                     mFttCollection->addPoint(point);
@@ -485,7 +485,7 @@ void StFttPointMaker::MakeLocalPoints(UChar_t Rob)
             }
             if (!point)
             {
-                LOG_INFO << "empty point !!!!!!" << endm;
+                if(mDebug) LOG_INFO << "empty point !!!!!!" << endm;
                 continue;
             }
             // point->print();

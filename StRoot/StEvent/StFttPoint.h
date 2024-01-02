@@ -60,7 +60,7 @@ private:
     Float_t mSigmaX = -99.;  // sigma for 1D X cluster along the strip direction, it should be the striplength/sqrt(12)
     Float_t mSigmaY = -99.;  // sigma for 1D Y cluster along the strip direction, it should be the striplength/sqrt(12)
     StFttCluster *mClusters[4];
-    StThreeVectorD  mXYZ;    // Photon position in STAR coordinate
+    StThreeVectorD  mXYZ;    // Point position in STAR coordinate
 
     ClassDef(StFttPoint, 1)
 };
