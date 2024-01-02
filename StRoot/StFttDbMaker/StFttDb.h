@@ -84,6 +84,7 @@ public:
     static const size_t nStripGroupEdge = 8;
 
     //for idealPlaneZLocations_QuadX, now using the cm as unit because that in the old version this using the cm as unit
+    static double LocalStripZLocations[nPlane];
     static double idealPlaneZLocations_QuadA[nPlane];//cm
     static double idealPlaneZLocations_QuadB[nPlane];
     static double idealPlaneZLocations_QuadC[nPlane];
