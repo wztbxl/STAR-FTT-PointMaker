@@ -355,7 +355,7 @@ void StFttPointMaker::MakeLocalPoints(UChar_t Rob)
             if ( x < 1.e-5 || y < 1.e-5) continue;//remove the cluster with wrong number
             if ( x > 1.e5 || y > 1.e5) continue;//remove the cluster with wrong number
 
-            if (x>y)//for the diagonal_V is cover the lower half 
+            if (x>y)//for the diagonal_V is fully cover the lower half 
             {
                 bool is_pair = kFALSE;
                 int i_cluster = -1;//the the index of d_V cluster
@@ -426,7 +426,7 @@ void StFttPointMaker::MakeLocalPoints(UChar_t Rob)
                     mFttCollection->addPoint(point);
                 }
             }
-            if (x<y)//for the diagonal_H is cover the higher half 
+            if (x<y)//for the diagonal_H is fully cover the higher half 
             {
                 if(mDebug)
                 {
