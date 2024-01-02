@@ -673,7 +673,7 @@ bool StFttDb::hardwareMap( StFttRawHit * hit ) const{
 //used to reversve the map, from the hardware to electronic map
 // plane, quad, row and strip can be calculated from the simulation maker
 // the key issue if to figure out which feb, row, and strip is for the selected channel
-bool StFttDb::reverseHardwareMap( int &rob, int &feb, int &vmm, int &ch, int plane, int quad, int row, int strip, UChar_t &orientation ) const{
+bool StFttDb::reverseHardwareMap( int &rob, int &feb, int &vmm, int &ch, int plane, int quad, int row, int strip, UChar_t &orientation ) const {
     // uint16_t key = packKey( feb, vmm, ch );
     uint16_t val = packVal( row, strip );
     if ( rMap.count( val ) ){
