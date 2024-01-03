@@ -170,8 +170,8 @@ public:
  private:
   int   mDbAccess=1;                     //! enable(1) or disabe(0) DB access
   int   mRun=0;                          //! run#
-  int   mDebug=1;                        //! >0 dump tables to text files    
-  // int   mDebug=0;                        //! >0 dump tables to text files    
+  // int   mDebug=1;                        //! >0 dump tables to text files    
+  int   mDebug=0;                        //! >0 dump tables to text files    
 
   bool mUserDefinedTimeCut = false;
   TimeCutMode mTimeCutMode;

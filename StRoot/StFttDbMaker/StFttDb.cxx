@@ -622,17 +622,13 @@ bool StFttDb::hardwareMap( StFttRawHit * hit ) const{
             }
             if ( slMapRow1.count( strip ) > 0 && row == 0)// for Strip Length infomation
                 stripLength = slMapRow1.at(strip);
-            else {
-                LOG_ERROR << "Cannot find StripLength for row " << row << " Strip " << strip << endm;
-            }
-            if ( slMapRow2.count( strip ) > 0 && row == 1)// for Strip Length infomation
+            else if (slMapRow2.count( strip ) > 0 && row == 1)
+            {
                 stripLength = slMapRow2.at(strip);
-            else {
-                LOG_ERROR << "Cannot find StripLength for row " << row << " Strip " << strip << endm;
-            }
-            if ( slMapRow3.count( strip ) > 0 && row == 2)// for Strip Length infomation
+            } else if (slMapRow3.count( strip ) > 0 && row == 2)
+            {
                 stripLength = slMapRow3.at(strip);
-            else {
+            } else {
                 LOG_ERROR << "Cannot find StripLength for row " << row << " Strip " << strip << endm;
             }
         }
@@ -654,12 +650,11 @@ bool StFttDb::hardwareMap( StFttRawHit * hit ) const{
             }
             if (slMapRow4.count(strip) > 0 && row == 3)// for Strip Length infomation
                 stripLength = slMapRow4.at(strip);
-            else {
-                LOG_ERROR << "Cannot find StripLength for row " << row << " Strip " << strip << endm;
-            }
-            if (slMapRow5.count(strip) > 0 && row == 4)// for Strip Length infomation
+            else if (slMapRow5.count(strip) > 0 && row == 4)
+            {
                 stripLength = slMapRow5.at(strip);
-            else {
+            } else
+            {
                 LOG_ERROR << "Cannot find StripLength for row " << row << " Strip " << strip << endm;
             }
         }
