@@ -367,9 +367,9 @@ void StFttPointMaker::MakeLocalPoints(UChar_t Rob)
                 {
                     // LOG_INFO << "debug Diag V1" << endm;
                     point->setX(x);
-                    point->setSigmaY(clu_x->maxStripLength()/TMath::Sqrt(12));
+                    point->setSigmaX(clu_x->sigma());
                     point->setY(y);
-                    point->setSigmaX(clu_y->maxStripLength()/TMath::Sqrt(12));
+                    point->setSigmaY(clu_y->sigma());
                     if(mDebug) LOG_INFO << "Point (X,Y) = " << x << ", " << y << endm;
                     point->setPlane(clu_x->plane());
                     point->setQuadrant(clu_x->quadrant());
@@ -402,6 +402,8 @@ void StFttPointMaker::MakeLocalPoints(UChar_t Rob)
                     if(mDebug) LOG_INFO << "Point (X,Y) = " << x << ", " << y << endm;
                     point->setX(x);
                     point->setY(y);
+                    point->setSigmaX(clu_x->sigma());
+                    point->setSigmaY(clu_y->sigma());
                     point->setPlane(clu_x->plane());
                     point->setQuadrant(clu_x->quadrant());
                     // LOG_INFO << "debug Diag H3" << endm;
@@ -439,6 +441,8 @@ void StFttPointMaker::MakeLocalPoints(UChar_t Rob)
                     is_pair = kTRUE;
                     point->setX(x);
                     point->setY(y);
+                    point->setSigmaX(clu_x->sigma());
+                    point->setSigmaY(clu_y->sigma());
                     point->setPlane(clu_x->plane());
                     point->setQuadrant(clu_x->quadrant());
                     point->addCluster(clu_x,kFttVertical);
@@ -463,6 +467,8 @@ void StFttPointMaker::MakeLocalPoints(UChar_t Rob)
                     is_pair = kTRUE;
                     point->setX(x);
                     point->setY(y);
+                    point->setSigmaX(clu_x->sigma());
+                    point->setSigmaY(clu_y->sigma());
                     point->setPlane(clu_x->plane());
                     point->setQuadrant(clu_x->quadrant());
                     point->addCluster(clu_x,kFttVertical);
