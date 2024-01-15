@@ -208,13 +208,13 @@ void StFttClusterPointMaker::MakeLocalPoints(UChar_t Rob)
         StFttCluster* clu_x = clustersPerRob[(UChar_t)Rob][kFttVertical][iClu_X];
         if (clu_x->row() > 2)
         {
-            LOG_ERROR << "Wrong cluster row information for cluster at Rob " << Rob << " direction : " << mFttDb::Direction_name[kFttVertical] <<  "!!!!!!" << endm;
+            LOG_ERROR << "Wrong cluster row information for cluster at Rob " << Rob << " direction : " << mFttDb->Direction_name[kFttVertical] <<  "!!!!!!" << endm;
             continue;
         }
         
         //x from cluster reconstruction, y at the center of strip with max ADC
         point->setX(clu_x->x());
-        point->setY( mFttDb::YX_StripGroupEdge[clu_x->row()]+clu_x->maxStripLength()/2. );
+        point->setY( mFttDb->YX_StripGroupEdge[clu_x->row()]+clu_x->maxStripLength()/2. );
         //x sigma from the cluster reconstruction, y sigma from uniform distribution
         point->setSigmaX(clu_x->sigma());
         point->setSigmaY(clu_x->maxStripLength()/sqrt(12));
@@ -232,12 +232,12 @@ void StFttClusterPointMaker::MakeLocalPoints(UChar_t Rob)
         StFttCluster* clu_y = clustersPerRob[(UChar_t)Rob][kFttHorizontal][iClu_Y];
         if (clu_y->row() > 2)
         {
-            LOG_ERROR << "Wrong cluster row information for cluster at Rob " << Rob << " direction : " << mFttDb::Direction_name[kFttHorizontal] <<  "!!!!!!" << endm;
+            LOG_ERROR << "Wrong cluster row information for cluster at Rob " << Rob << " direction : " << mFttDb->Direction_name[kFttHorizontal] <<  "!!!!!!" << endm;
             continue;
         }
 
         //y from reconstruction, x at the center of strip with max ADC
-        point->setX( mFttDb::YX_StripGroupEdge[clu_y->row()]+clu_y->maxStripLength()/2. );
+        point->setX( mFttDb->YX_StripGroupEdge[clu_y->row()]+clu_y->maxStripLength()/2. );
         point->setY( clu_y->x() );
         //y sigma from cluster reconstruction, x sigma from uniform distribution
         point->setSigmaX(clu_y->maxStripLength()/sqrt(12.));
@@ -258,7 +258,7 @@ void StFttClusterPointMaker::MakeLocalPoints(UChar_t Rob)
         StFttCluster* clu_DH = clustersPerRob[(UChar_t)Rob][kFttDiagonalH][iClu_DH];
         if (clu_DH->row() <= 2)
         {
-            LOG_ERROR << "Wrong cluster row information for cluster at Rob " << Rob << " direction : " << mFttDb::Direction_name[kFttDiagonalH] <<  "!!!!!!" << endm;
+            LOG_ERROR << "Wrong cluster row information for cluster at Rob " << Rob << " direction : " << mFttDb->Direction_name[kFttDiagonalH] <<  "!!!!!!" << endm;
             continue;
         }
 
@@ -285,7 +285,7 @@ void StFttClusterPointMaker::MakeLocalPoints(UChar_t Rob)
         StFttCluster* clu_DV = clustersPerRob[(UChar_t)Rob][kFttDiagonalV][iClu_DV];
         if (clu_DV->row() <= 2)
         {
-            LOG_ERROR << "Wrong cluster row information for cluster at Rob " << Rob << " direction : " << mFttDb::Direction_name[kFttDiagonalV] <<  "!!!!!!" << endm;
+            LOG_ERROR << "Wrong cluster row information for cluster at Rob " << Rob << " direction : " << mFttDb->Direction_name[kFttDiagonalV] <<  "!!!!!!" << endm;
             continue;
         }
 
