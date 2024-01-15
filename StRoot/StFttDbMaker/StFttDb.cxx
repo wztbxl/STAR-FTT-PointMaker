@@ -20,6 +20,8 @@
 ClassImp(StFttDb)
 
 
+TString Direction_name[] = {"kFttHorizontal","kFttVertical","kFttDiagonalH","kFttDiagonalV","kFttUnknownOrientation"};
+
 double StFttDb::stripPitch = 3.2; // mm
 double StFttDb::rowLength = 180; // mm
 double StFttDb::lowerQuadOffsetX = 101.6; // mm
@@ -38,12 +40,12 @@ double StFttDb::X_shift_QuadA[] = {8.09, 8.34, 6.62,7.54 };//mm
 double StFttDb::X_shift_QuadB[] = {112.74, 112.14, 113.30, 113.49};//mm 
 double StFttDb::X_shift_QuadC[] = {-107.51, -108.22, -109.87, -108.91};//mm 
 double StFttDb::X_shift_QuadD[] = {-3.69, -4.96, -4.36, -3.75};//mm 
-double StFttDb::X_StripGroupEdge[] = {14.60, 172.29, 216.89,315.4, 360.09, 410.9, 504.2, 545.19};//mm 
 double StFttDb::Y_shift_QuadA[] = {95.34, 94.33, 96.03, 95.01};//mm 
 double StFttDb::Y_shift_QuadB[] = {84.24, 83.37, 83.61, 83.81};//mm
 double StFttDb::Y_shift_QuadC[] = {83.60, 83.42, 84.37, 82.81};//mm
 double StFttDb::Y_shift_QuadD[] = {95.70, 94.40, 95.55, 94.16};//mm
-double StFttDb::Y_StripGroupEdge[] = {11.49};//mm 
+double StFttDb::YX_StripGroupEdge[] = {11.49, 172.29, 360.09};//mm 
+double StFttDb::D_StripGroupEdge[] = {11.49};//mm 
 
 StFttDb::StFttDb(const char *name) : TDataSet(name) {}; 
 

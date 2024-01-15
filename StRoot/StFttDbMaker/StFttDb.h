@@ -83,6 +83,9 @@ public:
     static const size_t nChPerVMM     = 64;
     static const size_t nStripGroupEdge = 8;
 
+    //name for the cluster direction
+    static TString Direction_name[nQuadPerPlane+1];
+
     //for idealPlaneZLocations_QuadX, now using the cm as unit because that in the old version this using the cm as unit
     static double LocalStripZLocations[nPlane];
     static double idealPlaneZLocations_QuadA[nPlane];//cm
@@ -93,12 +96,12 @@ public:
     static double X_shift_QuadB[nQuadPerPlane];//mm , x shift from pin hole to (0,0)
     static double X_shift_QuadC[nQuadPerPlane];//mm , x shift from pin hole to (0,0)
     static double X_shift_QuadD[nQuadPerPlane];//mm , x shift from pin hole to (0,0)
-    static double X_StripGroupEdge[nStripGroupEdge]; // mm , from left to right, reference : https://drupal.star.bnl.gov/STAR/system/files/StFttPointMaker_ZhenWang_20221013_fwdsoftmeeting.pdf Slide 14
     static double Y_shift_QuadA[nQuadPerPlane];//mm , y shift from pin hole to (0,0)
     static double Y_shift_QuadB[nQuadPerPlane];//mm , y shift from pin hole to (0,0)
     static double Y_shift_QuadC[nQuadPerPlane];//mm , y shift from pin hole to (0,0)
     static double Y_shift_QuadD[nQuadPerPlane];//mm , y shift from pin hole to (0,0)
-    static double Y_StripGroupEdge[nStripGroupEdge]; // mm , from left to right, reference : https://drupal.star.bnl.gov/STAR/system/files/StFttPointMaker_ZhenWang_20221013_fwdsoftmeeting.pdf Slide 14
+    static double YX_StripGroupEdge[nStripGroupEdge]; // mm , from left to right, reference : https://drupal.star.bnl.gov/STAR/system/files/StFttPointMaker_ZhenWang_20221013_fwdsoftmeeting.pdf Slide 14
+    static double D_StripGroupEdge[nStripGroupEdge]; // mm , from left to right, reference : https://drupal.star.bnl.gov/STAR/system/files/StFttPointMaker_ZhenWang_20221013_fwdsoftmeeting.pdf Slide 14
 
     static const size_t nQuad = nQuadPerPlane * nPlane; // 4 * 4 = 16 Total number of Quadrants
     static const size_t nRob = nQuad;
