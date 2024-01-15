@@ -126,14 +126,16 @@ StFttPointMaker::Make()
             LOG_INFO << "direction = " << (int)clu->orientation() << endm;
             LOG_INFO << "cluster x = " << clu->x() << endm;
         }
+        //group clusters in differnt rob and orientation
         clustersPerRob[ (int)rob ][ clu->orientation() ].push_back( clu );// clustersPerRob[ rob ] [ orientation ]
         // clustersPerRob[ clu->orientation() ] [ rob ].push_back( clu ); 
-    } // loop on hit
+    } // loop on cluster
 
     for (int i = 0; i < 16; i++) 
     {
         if (mDebug) 
         {
+            LOG_INFO << "Now at ROB " << i << endm;
             LOG_INFO << "nCluster kFttVertical = " << clustersPerRob[ i ][ kFttVertical ].size() << endm;
             LOG_INFO << "nCluster kFttHorizontal = " << clustersPerRob[ i ][ kFttHorizontal ].size() << endm;
             LOG_INFO << "nCluster kFttDiagonalV = " << clustersPerRob[ i ][ kFttDiagonalV ].size() << endm;
@@ -174,143 +176,18 @@ void StFttPointMaker::MakeGlobalPoints() {
     }
 }
 
-// using strip group method to reject ghost hit
-bool StFttPointMaker::GhostHitRejection_StripGroup( int row_x, int row_y, double x, double y) 
-{
-    // check all the strip groups to reject the ghost
-    bool is_ghosthit = kFALSE;
-    if ( is_Group1(row_x,row_y,x,y) || is_Group2(row_x,row_y,x,y) || is_Group3(row_x,row_y,x,y) || is_Group4(row_x,row_y,x,y) || is_Group5(row_x,row_y,x,y) || is_Group6(row_x,row_y,x,y) || is_Group6(row_x,row_y,x,y) || is_Group7(row_x,row_y,x,y) || is_Group8(row_x,row_y,x,y) ) 
-    is_ghosthit = kTRUE;
-    // is_ghosthit = is_Group1(x,y);
-    // is_ghosthit = is_Group2(x,y);
-    // is_ghosthit = is_Group3(x,y);
-    // is_ghosthit = is_Group4(x,y);
-    // is_ghosthit = is_Group5(x,y);
-    // is_ghosthit = is_Group6(x,y);
-    // is_ghosthit = is_Group7(x,y);
-    // is_ghosthit = is_Group8(x,y);
-
-    return is_ghosthit;
-}
-
-//using diagnoal horizontal strip to reject method, 
-bool StFttPointMaker::GhostHitRejection_DiagH(double x, double y, int Rob, int &i_cluster)
-{
-    // TODO: how to confirm i_cluster
-    bool is_pair = kFALSE;
-    i_cluster = -999;
-    //loop the diagonal cluster find a cluster can include this cluster
-    // for (StFttCluster* clu_dx : *clustersPerRob[(UChar_t)Rob][kFttDiagonalH])
-    size_t nclusters = clustersPerRob[(UChar_t)Rob][kFttDiagonalH].size();
-    double distance = -99.;
-    double distance_prev = 999.;
-    for (size_t iClu_DH = 0; iClu_DH<nclusters; iClu_DH++)
-    {
-        double intercept = 0;
-        intercept = x+y;
-        auto clu_dx=clustersPerRob[(UChar_t)Rob][kFttDiagonalH][iClu_DH];
-
-        double LEdge = clu_dx->maxStripLeftEdge()*sqrt(2);
-        double REdge = clu_dx->maxStripRightEdge()*sqrt(2);
-
-        //for loose cluster cut and check performance, this number now select by hand
-        // LEdge = LEdge-1.6*sqrt(2);
-        // REdge = REdge+1.6*sqrt(2);
-
-        // LOG_INFO << "intercept = " << intercept << " LEdge = " << LEdge << " REdge = " << REdge << endm;
-        // LOG_INFO << "cluster x = " << clu_dx->x()*sqrt(2) << endm;
-
-        // if(intercept >= LEdge && intercept <= REdge) 
-        // {
-            // is_pair = kTRUE;
-            // distance = abs(intercept-clu_dx->x()*sqrt(2));
-            // if (distance < distance_prev)
-            // {
-                // distance_prev = distance;
-                // i_cluster = iClu_DH;
-            // }
-        // }
-        // LOG_INFO << "i_cluster = " << i_cluster << endm;
-        if(clu_dx->x()*sqrt(2)+1.60*3 > intercept && clu_dx->x()*sqrt(2)-1.60*3 < intercept)
-        {
-            is_pair = kTRUE;
-            distance = abs(intercept-clu_dx->x()*sqrt(2));
-            if (distance < distance_prev)
-            {
-                distance_prev = distance;
-                i_cluster = iClu_DH;
-            }
-        }
-        // LOG_INFO << "i_cluster = " << i_cluster << endm;
-    }
-    // LOG_INFO << "is pair = " << (int)is_pair << endm;
-    return is_pair;
-}
-
-//using diagnoal vertical strip to reject method, 
-bool StFttPointMaker::GhostHitRejection_DiagV(double x, double y, int Rob, int &i_cluster)
-{
-    // LOG_INFO << "starting do GhostHitRejection_DiagV " << endm;
-    // TODO: how to confirm i_cluster
-    bool is_pair = kFALSE;
-    i_cluster = -999;
-    //loop the diagonal cluster find a cluster can include this cluster
-    size_t nclusters = clustersPerRob[(UChar_t)Rob][kFttDiagonalV].size();
-    double distance = -99.;
-    double distance_prev = 999.;
-    for (size_t iClu_DV = 0; iClu_DV<nclusters; iClu_DV++)
-    {
-        double intercept = 0;
-        intercept = x+y;
-        auto clu_dx=clustersPerRob[(UChar_t)Rob][kFttDiagonalV][iClu_DV];
-
-        double LEdge = clu_dx->maxStripLeftEdge()*sqrt(2);
-        double REdge = clu_dx->maxStripRightEdge()*sqrt(2);
- 
-        //for loose cluster cut and check performance, this number now select by hand
-                //  LEdge = LEdge-1.6*sqrt(2);
-                //  REdge = REdge+1.6*sqrt(2);
-          
-
-        // LOG_INFO << "intercept = " << intercept << " LEdge = " << LEdge << " REdge = " << REdge << endm;
-        // LOG_INFO << "cluster x = " << clu_dx->x()*sqrt(2) << endm;
-
-        // if(intercept >= LEdge && intercept <= REdge) 
-        // {
-            // is_pair = kTRUE;
-            // distance = abs(intercept-clu_dx->x()*sqrt(2));
-            // if (distance < distance_prev)
-            // {
-                // distance_prev = distance;
-                // i_cluster = iClu_DV;
-            // }
-        // }
-        // LOG_INFO << "i_cluster = " << i_cluster << endm;
-        if(clu_dx->x()*sqrt(2) < intercept+1.60*3 && clu_dx->x()*sqrt(2) > intercept-1.60*3)
-        {
-            is_pair = kTRUE;
-            distance = abs(intercept-clu_dx->x()*sqrt(2));
-            if (distance < distance_prev)
-            {
-                distance_prev = distance;
-                i_cluster = iClu_DV;
-            }
-        }
-        // LOG_INFO << "i_cluster = " << i_cluster << endm;
-    }
-    // LOG_INFO << "is pair = " << (int)is_pair << endm;
-    return is_pair;
-}
-
 //--------------------------------------------------------------
 //for  the loacl coordinate, if using the the center of pin hole as (0,0)
 //center of first strip of V&H strips is 15.95mm
 //center of first strip of dia strips is 19.42mm
+//in the cluster point maker, the thing I need to do is just loop all the clusters 
 void StFttPointMaker::MakeLocalPoints(UChar_t Rob)
 {
+    //init the point 
     StFttPoint* point;
     double x = -999.;
     double y = -999.;
+    //init the number of cluster
     size_t nClusters_X = 0;size_t nClusters_Y = 0;size_t nClusters_DX = 0;size_t nClusters_DY = 0;
     nClusters_X = clustersPerRob[(UChar_t)Rob][kFttVertical].size();
     nClusters_Y = clustersPerRob[(UChar_t)Rob][kFttHorizontal].size();
@@ -323,6 +200,51 @@ void StFttPointMaker::MakeLocalPoints(UChar_t Rob)
         LOG_INFO << "nCluster dH = " << clustersPerRob[(UChar_t)Rob][kFttDiagonalH].size()<< endm;
     }
 
+    //loop all the clusters and save the cluster information
+    for (int iClu_X = 0; iClu_X < nClusters_X; iClu_X++)
+    {
+        point = new StFttPoint();
+        //get the x information of cluster
+        StFttCluster* clu_x = clustersPerRob[(UChar_t)Rob][kFttVertical][iClu_X];
+        if (clu_x->row() > 2)
+        {
+            LOG_ERROR << "Wrong cluster row information for cluster at Rob " << Rob << " direction : " << Direction_name[kFttVertical] <<  "!!!!!!" << endm;
+            continue;
+        }
+        
+        //x from cluster reconstruction, y at the center of strip with max ADC
+        point->setX(clu_x->x());
+        point->setY( YX_StripGroupEdge[clu_x->row()]+clu_x->maxStripLength()/2. );
+        //x sigma from the cluster reconstruction, y sigma from uniform distribution
+        point->setSigmaX(clu_x->sigma());
+        point->setSigmaY(clu_x->maxStripLength()/sqrt(12));
+        point->setPlane(clu_x->plane());
+        point->setQuadrant(clu_x->quadrant());
+        point->addCluster(clu_x,kFttVertical);
+        mFttPoint.push_back(point);
+        mFttCollection->addPoint(point);
+    }
+
+    //loop all the clusters and save tht cluster information
+    for (int iClu_Y = 0; iClu_Y < nClusters_Y; iClu_Y++)
+    {
+        point = new StFttPoint();
+        StFttCluster* clu_y = clustersPerRob[(UChar_t)Rob][kFttHorizontal][iClu_Y];
+        if (clu_y->row() > 2)
+        {
+            LOG_ERROR << "Wrong cluster row information for cluster at Rob " << Rob << " direction : " << Direction_name[kFttHorizontal] <<  "!!!!!!" << endm;
+            continue;
+        }
+
+        //y from reconstruction, x at the center of strip with max ADC
+        point->setX( YX_StripGroupEdge[clu_y->row()]+clu_y->maxStripLength()/2. );
+        point->setY( clu_y->x() );
+        //y sigma from cluster reconstruction, x sigma from uniform distribution
+        point->setSigmaX(clu_y->);
+
+    }
+    
+    
     
     for ( size_t iClu_X = 0; iClu_X < nClusters_X; iClu_X++ )
     {
