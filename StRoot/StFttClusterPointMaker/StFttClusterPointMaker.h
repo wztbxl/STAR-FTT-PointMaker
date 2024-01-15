@@ -71,7 +71,7 @@ private:
     }
     inline bool is_Group8(int row_x, int row_y, double x, double y) const { return ( ((360.09 <= y && y <= 504.2) && (172.29 <= x && x <= 315.4)) && (row_x == 2) && (row_y == 1)); }
 
-    ClassDef( StFttPointMaker, 1 )
+    ClassDef( StFttClusterPointMaker, 1 )
 };
 
 #endif // STFTTPOINTMAKER_H
